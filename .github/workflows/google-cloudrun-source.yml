@@ -64,6 +64,7 @@ jobs:
       id-token: 'write'
 
     runs-on: ubuntu-latest
+    environment: google_cloud
     steps:
       - name: Checkout
         uses: actions/checkout@v2
