@@ -75,13 +75,6 @@ jobs:
           workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
           service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
 
-      # NOTE: Alternative option - authentication via credentials json
-      # - name: Google Auth
-      #   id: auth
-      #   uses: 'google-github-actions/auth@v0'
-      #   with:
-      #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-
       - name: Deploy to Cloud Run
         id: deploy
         uses: google-github-actions/deploy-cloudrun@v0
@@ -90,7 +83,22 @@ jobs:
           region: ${{ env.REGION }}
           # NOTE: If required, update to the appropriate source folder
           source: ./
-
+          env_vars: |
+            HTTP_ADDRESS=0.0.0.0:8080
+            INFLUX_URL=https://europe-west1-1.gcp.cloud2.influxdata.com
+            INFLUX_BUCKET=home
+            YR_URL=https://api.met.no/weatherapi/locationforecast/2.0/
+            FORECAST_INTERVAL=1h
+          secrets: |
+            INFLUX_TOKEN=projects/832776307637/secrets/influx-db-home-token/versions/latest
+            INFLUX_ORG=projects/832776307637/secrets/influx-org/versions/latest
+            YR_USER_AGENT=projects/832776307637/secrets/influx-org/versions/latest
+            POSITION_LATITUDE=projects/832776307637/secrets/position-latitude/versions/latest
+            POSITION_LONGITUDE=projects/832776307637/secrets/position-longitude/versions/latest
+            POSITION_ALTITUDE=projects/832776307637/secrets/position_altitude/versions/latest
+          flags: |
+            --max-instances=1
+          
       # If required, use the Cloud Run url output in later steps
       - name: Show Output
         run: echo ${{ steps.deploy.outputs.url }}
