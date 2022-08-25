@@ -45,12 +45,14 @@ func realMain(ctx context.Context) error {
 		_ = envconfig.Usage("", &cfg)
 		logrus.WithError(err).Fatal("main: failed to load environment variables")
 	}
-	logrus.WithField("config", &cfg).Debug("main: loaded config")
+
 	level, err := logrus.ParseLevel(cfg.LogLevel)
 	if err != nil {
 		return fmt.Errorf("failed to parse log level: %w", err)
 	}
 	logrus.SetLevel(level)
+
+	logrus.WithField("config", &cfg).Debug("main: loaded config")
 
 	ctx, cancel := context.WithCancel(ctx)
 
