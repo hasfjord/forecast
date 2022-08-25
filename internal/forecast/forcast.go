@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/hasfjord/forecast/internal/yr"
+	"github.com/sirupsen/logrus"
 )
 
 type ForecastClient interface {
@@ -50,6 +51,7 @@ func (s *Server) MakeRunForecastHandler() func(w http.ResponseWriter, r *http.Re
 		ctx := r.Context()
 		err := s.runForecast(ctx)
 		if err != nil {
+			logrus.WithField("error", err).Error("failed to run forecast")
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
