@@ -52,8 +52,6 @@ func realMain(ctx context.Context) error {
 	}
 	logrus.SetLevel(level)
 
-	logrus.WithField("config", &cfg).Debug("main: loaded config")
-
 	ctx, cancel := context.WithCancel(ctx)
 
 	var wg sync.WaitGroup
