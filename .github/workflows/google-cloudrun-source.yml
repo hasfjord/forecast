@@ -53,7 +53,7 @@ on:
 
 env:
   PROJECT_ID: marine-order-330913
-  SERVICE: dt-connector
+  SERVICE: forecast
   REGION: europe-west1
 
 jobs:
