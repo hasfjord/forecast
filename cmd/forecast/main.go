@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,6 +23,7 @@ type Config struct {
 	TSDB     influx.Config
 	Forecast forecast.Config
 	Address  string `envconfig:"HTTP_ADDRESS" required:"true"`
+	LogLevel string `envconfig:"LOG_LEVEL" default:"info"`
 }
 
 func main() {
@@ -35,7 +37,7 @@ func main() {
 
 func realMain(ctx context.Context) error {
 	logrus.SetOutput(os.Stdout)
-	logrus.SetLevel(logrus.DebugLevel)
+
 	logrus.Info("Starting server")
 
 	var cfg Config
@@ -44,6 +46,11 @@ func realMain(ctx context.Context) error {
 		logrus.WithError(err).Fatal("main: failed to load environment variables")
 	}
 	logrus.WithField("config", &cfg).Debug("main: loaded config")
+	level, err := logrus.ParseLevel(cfg.LogLevel)
+	if err != nil {
+		return fmt.Errorf("failed to parse log level: %w", err)
+	}
+	logrus.SetLevel(level)
 
 	ctx, cancel := context.WithCancel(ctx)
 
@@ -55,22 +62,12 @@ func realMain(ctx context.Context) error {
 
 	forecastServer := forecast.NewServer(yrClient, dbClient, cfg.Forecast)
 
-	go func() {
-		logrus.Info("Starting forecast server")
-		wg.Add(1)
-
-		if err := forecastServer.RunForecast(ctx); err != nil {
-			logrus.WithError(err).Error("main: failed to run forecast")
-		}
-		cancel()
-		wg.Done()
-	}()
-
 	server := &http.Server{Addr: cfg.Address,
 		ReadTimeout:       time.Second * 15,
 		ReadHeaderTimeout: time.Second * 10,
 		WriteTimeout:      time.Second * 10}
 
+	http.HandleFunc("/forecast/run", forecastServer.MakeRunForecastHandler())
 	http.HandleFunc("/readiness", HealthHandler)
 	http.HandleFunc("/liveness", HealthHandler)
 

@@ -89,7 +89,6 @@ jobs:
             INFLUX_URL=https://europe-west1-1.gcp.cloud2.influxdata.com
             INFLUX_BUCKET=home
             YR_URL=https://api.met.no/weatherapi/locationforecast/2.0/
-            FORECAST_INTERVAL=1h
           secrets: |
             INFLUX_TOKEN=projects/832776307637/secrets/influx-db-home-token/versions/latest
             INFLUX_ORG=projects/832776307637/secrets/influx-org/versions/latest

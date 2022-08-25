@@ -100,7 +100,6 @@ func (c *Client) makeRequest(ctx context.Context, Method string, URL string, par
 	}
 	request.URL.RawQuery = parameters.Encode()
 	logrus.Debugf("yr: request: %s", request.URL.String())
-	logrus.Debug("make request")
 
 	// make request
 	res, err := c.Do(request)
